@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merry Christmas 🎄</title>
+
+<style>
+* {
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at top, #0b3d2e, #021b14);
+  height:100vh;
+  overflow:hidden;
+  color:white;
+  text-align:center;
+}
+
+/* Snowflake */
+.snow {
+  position: fixed;
+  top: -10px;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.6;
+  transform-origin: center center;
+}
+
+/* Layout */
+.container {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+h1 {
+  margin-bottom: 8px;
+}
+
+p {
+  opacity: 0.9;
+  margin-bottom: 15px;
+}
+
+/* Tree */
+.tree {
+  font-size: 4rem;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/* Blinking lights */
+.light {
+  position: absolute;
+  font-size: 1.2rem;
+  opacity: 0;
+}
+
+/* Star and gifts */
+.star {
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+
+.gifts {
+  margin-top: 10px;
+  font-size: 3rem;
+  cursor: pointer;
+}
+
+.footer {
+  position: fixed;
+  bottom: 15px;
+  width: 100%;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Canvas */
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fx"></canvas>
+
+<div class="container">
+  <div class="star" id="star">⭐</div>
+
+  <div class="tree" id="tree">
+    🎄<br>🎄🎄<br>🎄🎄🎄
+    
+  </div>
+
+  <div class="gifts" id="gifts">🎁 🎁 🎁</div>
+
+  <h1>Merry Christmas</h1>
+  <p>Wishing you love & happiness</p>
+</div>
+
+<div class="footer">Tap the tree, gifts, or star ✨</div>
+
+<!-- Christmas Music -->
+<audio autoplay loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* Snowflakes with sparkle & rotation */
+for(let i=0;i<100;i++){
+  const s=document.createElement("div");
+  s.className="snow";
+  const size = 2 + Math.random()*4;
+  s.style.width = s.style.height = size + "px";
+  s.style.left = Math.random()*100+"vw";
+  s.style.opacity = 0.3 + Math.random()*0.7;
+
+  // Random animation duration and drift
+  const duration = 8 + Math.random()*5;
+  const drift = Math.random()*40 - 20;
+
+  const fall = document.createElement('style');
+  fall.innerHTML = `
+    @keyframes fall${i}{
+      0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity:${Math.random()}; }
+      50% { transform: translateY(50vh) translateX(${drift/2}px) rotate(${Math.random()*180}deg); opacity:${0.3+Math.random()*0.7}; }
+      100% { transform: translateY(110vh) translateX(${drift}px) rotate(${Math.random()*360}deg); opacity:${Math.random()}; }
+    }
+  `;
+  document.head.appendChild(fall);
+
+  s.style.animation = `fall${i} ${duration}s linear infinite`;
+  document.body.appendChild(s);
+}
+
+/* Canvas setup for fireworks */
+const canvas = document.getElementById("fx");
+const ctx = canvas.getContext("2d");
+function resize(){ canvas.width=innerWidth; canvas.height=innerHeight; }
+resize();
+addEventListener("resize", resize);
+
+let particles = [];
+
+function sprinkles(x,y,count=40){
+  for(let i=0;i<count;i++){
+    particles.push({
+      x,y,
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-1.2)*6,
+      life:60,
+      color:`hsl(${Math.random()*360},100%,60%)`
+    });
+  }
+}
+
+function fireworks(x,y){ sprinkles(x,y,80); }
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach((p,i)=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.vy+=0.1;
+    p.life--;
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x,p.y,3,3);
+    if(p.life<=0) particles.splice(i,1);
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* Click events */
+tree.onclick = e => sprinkles(e.clientX,e.clientY,60);
+gifts.onclick = e => fireworks(e.clientX,e.clientY);
+star.onclick = e => fireworks(e.clientX,e.clientY);
+
+/* Random blinking lights */
+const lights = document.querySelectorAll('.light');
+setInterval(() => {
+  lights.forEach(light => {
+    light.style.opacity = Math.random() > 0.5 ? 1 : 0;
+  });
+}, 300);
+</script>
+</body>
+</html>
